@@ -24,7 +24,8 @@ class LearningRateWarmupAndDecay(LearningRateSchedule):
         def ramp_down(step):
             return self.max_learning_rate * ((self.total_steps - step - 1) / (self.total_steps - self.num_warmup_steps))
 
-        lr = tf.cond(step <= self.num_warmup_steps, lambda: ramp_up(step), lambda: ramp_down(step))
+        # lr = tf.cond(step <= self.num_warmup_steps, lambda: ramp_up(step), lambda: ramp_down(step))
+        lr = 1
 
         # In order to avoid a LR of exactly zero, a minimal learning rate of 1e-7 is imposed
         lr = tf.reduce_max([1e-7, lr])
