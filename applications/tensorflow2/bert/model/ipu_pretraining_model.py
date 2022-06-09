@@ -53,6 +53,18 @@ class GatherSubsetOutput(tf.keras.layers.Layer):
     def call(self, inputs, positions, **kwargs):
         return gather_positions(inputs, positions)
 
+class SPMD(tf.keras.layers.Layer):
+    def __init__(self):
+        super().__init__()
+
+    def call(self, x: tf.Tensor):
+        import numpy as np
+        from tensorflow.compiler.xla.experimental.xla_sharding import xla_sharding
+        input_mesh_shape = [4] + [1] * (len(x.shape) - 1)
+        x = xla_sharding.tile(x,
+                              np.arange(4).reshape(input_mesh_shape))
+
+        return x
 
 class IpuTFBertForPreTraining(TFBertForPreTraining):
     """
@@ -65,6 +77,7 @@ class IpuTFBertForPreTraining(TFBertForPreTraining):
     def __init__(self, config: BertConfig, *inputs, **kwargs):
         super().__init__(config, *inputs, **kwargs)
         self.gather_masked = GatherSubsetOutput(name='gather_masked_outputs')
+        self.spmd = SPMD()
 
     def call(
             self,
@@ -99,6 +112,7 @@ class IpuTFBertForPreTraining(TFBertForPreTraining):
             training=training,
             kwargs_call=kwargs,
         )
+        inputs["inputs_embeds"] = self.spmd(inputs["inputs_embeds"])
         outputs = self.bert(
             input_ids=inputs["input_ids"],
             attention_mask=inputs["attention_mask"],

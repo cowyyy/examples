@@ -181,7 +181,9 @@ def convert_tf_bert_model(
     """
     model = convert_to_functional(hf_model, dataset)
     model.summary(print_fn=logging.info)
-    batch_size, seq_length = model.get_layer('bert').input_shape
+    # batch_size, seq_length = model.get_layer('bert').input_shape
+    batch_size = 4
+    seq_length = 128
 
     def copy_weights_layer_with_input_shape_hidden_states(layer, new_layer):
         copy_weights_layer_with_input_shape_hidden_states_func(layer, new_layer, batch_size, seq_length)

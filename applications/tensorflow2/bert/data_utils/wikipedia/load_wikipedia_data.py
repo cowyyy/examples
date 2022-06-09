@@ -63,10 +63,11 @@ def _decode_record(record,
 
     # Build input, targets tuple and change keys to be compatible with Hugging Face models
     inputs = {
-                'input_ids': example.pop('input_ids'),
+                # 'input_ids': example.pop('input_ids'),
                 'attention_mask': example.pop('input_mask'),
                 'token_type_ids': example.pop('segment_ids'),
-                'masked_lm_positions': masked_lm_positions
+                'masked_lm_positions': masked_lm_positions,
+                'inputs_embeds': tf.ones((128,128)),
             }
     labels = (masked_lm_ids, next_sentence_labels)
 

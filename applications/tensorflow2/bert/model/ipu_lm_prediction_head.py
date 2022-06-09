@@ -73,13 +73,14 @@ class IpuTFBertLMPredictionHead(tf.keras.layers.Layer):
             hidden_states = self.transform(hidden_states=hidden_states)
         seq_length = shape_list(hidden_states)[1]
         hidden_states = tf.reshape(tensor=hidden_states, shape=[-1, self.hidden_size])
-        hidden_states = ipu.math_ops.serialized_matmul(a=hidden_states,
-                                                       b=self.input_embeddings.weight,
-                                                       transpose_b=True,
-                                                       serialization_factor=self.serialization_factor,
-                                                       serialization_dimension="b_rows")
+        hidden_states = tf.matmul(hidden_states, tf.ones((128,30400), dtype=tf.float16))
+        # hidden_states = ipu.math_ops.serialized_matmul(a=hidden_states,
+        #                                                b=self.input_embeddings.weight,
+        #                                                transpose_b=True,
+        #                                                serialization_factor=self.serialization_factor,
+        #                                                serialization_dimension="b_rows")                                         
         hidden_states = tf.reshape(tensor=hidden_states, shape=[-1, seq_length, self.vocab_size])
-        if self.use_prediction_bias:
-            hidden_states = tf.nn.bias_add(value=hidden_states, bias=self.bias)
+        # if self.use_prediction_bias:
+        #     hidden_states = tf.nn.bias_add(value=hidden_states, bias=self.bias)
 
         return hidden_states

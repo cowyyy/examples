@@ -41,6 +41,9 @@ def create_ipu_strategy(num_ipus_per_replica,
     """
     ipu_config = ipu.config.IPUConfig()
 
+    ipu_config.experimental.enable_spmd = True
+    ipu_config.optimizations.enable_dynamic_slice_replacement = False
+
     # Enable / disable floating point exceptions.
     ipu_config.floating_point_behaviour.inv = fp_exceptions
     ipu_config.floating_point_behaviour.div0 = fp_exceptions
